@@ -32,7 +32,16 @@ class BST:
             z.color=1
             self.rb_insert_fixup(z)
         elif z.val<0:
-            self.rb_delete(z.val)
+            z.val = z.val*(-1)
+            exist = self.tree_search(z.val)
+            if exist is not self.nil:
+                self.rb_delete(z.val)
+            else:
+                self.stop=1
+                self.print_total()
+                self.print_black()
+                self.print_height()
+                self.inorder()
         else:
             self.print_total()
             self.print_black()
@@ -51,8 +60,7 @@ class BST:
                 find=1
         return current
     def rb_delete(self,z_1):
-        z_abs = (-1)*int(z_1)
-        z = self.tree_search(z_abs)
+        z = self.tree_search(z_1)
         if z is not self.nil:
             y=z
             y_original_color=y.color
@@ -259,6 +267,6 @@ lines=f.readlines()
 for line in lines:
     n=int(line)
     bst.rb_insert(Node(n))
-    if n==0:
+    if n==0 or bst.stop==1:
         break
 f.close()
