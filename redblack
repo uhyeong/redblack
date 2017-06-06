@@ -37,11 +37,7 @@ class BST:
             if exist is not self.nil:
                 self.rb_delete(z.val)
             else:
-                self.stop=1
-                self.print_total()
-                self.print_black()
-                self.print_height()
-                self.inorder()
+                print("not in the tree",z.val*(-1))
         else:
             self.print_total()
             self.print_black()
@@ -267,6 +263,6 @@ lines=f.readlines()
 for line in lines:
     n=int(line)
     bst.rb_insert(Node(n))
-    if n==0 or bst.stop==1:
+    if n==0:
         break
 f.close()
