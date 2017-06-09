@@ -1,3 +1,9 @@
+import os
+def search():
+    filenames = os.listdir(".")
+    for filename in filenames:
+        if filename.endswith("input.txt"):
+            print("filename =", filename)
 
 class Node:
     def __init__(self,newval):
@@ -10,8 +16,12 @@ class BST:
     def __init__(self):
         self.nil = Node(None)
         self.root = self.nil
+        self.insert =0
+        self.delete=0
+        self.miss =0
     def rb_insert(self,z):
-        if z.val>0:  
+        if z.val>0:
+            self.insert=self.insert+1
             y=self.nil
             x=self.root
             while(x is not self.nil):
@@ -37,9 +47,12 @@ class BST:
             if exist is not self.nil:
                 self.rb_delete(z.val)
             else:
-                print("not in the tree",z.val*(-1))
+                self.miss=self.miss+1
         else:
             self.print_total()
+            print("insert = ", insert)
+            print("delete = ",delete)
+            print("miss = ",miss)
             self.print_black()
             self.print_height()
             self.inorder()
@@ -58,6 +71,7 @@ class BST:
     def rb_delete(self,z_1):
         z = self.tree_search(z_1)
         if z is not self.nil:
+            self.delete=self.delete+1
             y=z
             y_original_color=y.color
             if z.left is self.nil:
@@ -191,7 +205,11 @@ class BST:
             else:
                 if(len(s)>0):
                     current = s.pop()
-                    print(current.val)
+                    print(current.val, end=" ")
+                    if current.color ==0:
+                        print("B")
+                    else:
+                        print("R")
                     current =current.right
                 else:
                     finish=1
