@@ -1,10 +1,4 @@
 import os
-def search():
-    filenames = os.listdir(".")
-    for filename in filenames:
-        if filename.endswith("input.txt"):
-            print("filename =", filename)
-
 class Node:
     def __init__(self,newval):
         self.val=newval
@@ -274,9 +268,15 @@ class BST:
         x.parent=y
 # In[11]:
 
+def search(str):
+    filenames = os.listdir(".")
+    for filename in filenames:
+        if filename.endswith(str):
+            print ("filename =",filename)
 bst=BST()
-
-f=open("input.txt",'r')
+str = "input.txt"
+search(str)
+f=open(str,'r')
 lines=f.readlines()
 for line in lines:
     n=int(line)
