@@ -1,0 +1,367 @@
+import os
+class Node:
+    def __init__(self,newval):
+        self.val=newval
+        self.right=None
+        self.left=None
+        self.parent=None
+        self.color=0 # 0 is black, 1 is red
+class BST:
+    def __init__(self):
+        self.nil = Node(None)
+        self.root = self.nil
+        self.insert=0
+        self.delete=0
+        self.miss=0
+        self.store=[]
+    def rb_insert(self,z):
+        if z.val>0:
+            self.insert=self.insert+1  
+            y=self.nil
+            x=self.root
+            while(x is not self.nil):
+                y=x
+                if z.val<x.val:
+                    x=x.left
+                else:
+                    x=x.right
+            z.parent=y
+            if y is self.nil:
+                self.root=z
+            elif z.val<y.val:
+                y.left=z
+            else:
+                y.right=z
+            z.left=self.nil
+            z.right=self.nil
+            z.color=1
+            self.store.append(z.val)
+            self.rb_insert_fixup(z)
+        elif z.val<0:
+            z.val = z.val*(-1)
+            exist = self.tree_search(z.val)
+            if exist is not self.nil:
+                self.rb_delete(z.val)
+                self.store.remove(z.val)
+            else:
+                self.miss = self.miss+1
+        else:
+            self.print_total()
+            print("insert =",self.insert)
+            print("delete =",self.delete)
+            print("miss =",self.miss)
+            self.print_black()
+            self.print_height()
+            self.inorder()
+
+    def tree_search(self,n):
+        current=self.root
+        find =0
+        while(find==0 and current is not self.nil):
+            if current.val < n:
+                current = current.right
+            elif current.val > n:
+                current = current.left
+            elif current.val==n:
+                find=1
+        return current
+    def rb_delete(self,z_1):
+        z = self.tree_search(z_1)
+        if z is not self.nil:
+            self.delete=self.delete+1
+            y=z
+            y_original_color=y.color
+            if z.left is self.nil:
+                x=z.right
+                self.transplant(z,z.right)
+            elif z.right is self.nil:
+                x=z.left
+                self.transplant(z,z.left)
+            else:
+                y=self.tree_minimum(z.right)
+                y_original_color=y.color
+                x=y.right
+                if y.parent == z:
+                    x.parent=y
+                else:
+                    self.transplant(y,y.right)
+                    y.right=z.right
+                    y.right.parent = y
+                self.transplant(z,y)
+                y.left=z.left
+                y.left.parent=y
+                y.color=z.color
+            if y_original_color == 0:
+                self.rb_delete_fixup(x)
+    def rb_delete_fixup(self,x):
+        while(x is not self.root and x.color==0):
+            if x==x.parent.left:
+                w=x.parent.right
+                if w is not self.nil:
+                    if w.color==1:
+                        w.color=0
+                        x.parent.color=1
+                        self.left_rotate(x.parent)
+                        w=x.parent.right
+                    if w.right.color==0 and w.left.color==0:
+                        w.color=1
+                        x=x.parent
+                    else:
+                        if w.right.color==0:
+                            w.left.color=0
+                            w.color=1
+                            self.right_rotate(w)
+                            w=x.parent.right
+                        w.color=x.parent.color
+                        x.parent.color=0
+                        w.right.color=0 
+                        self.left_rotate(x.parent)
+                        x=self.root
+                else:
+                    x=self.root
+            else: # x==x.parent.right
+                w=x.parent.left
+                if w is not self.nil:   
+                    if w.color==1:
+                        w.color=0
+                        x.parent.color=1
+                        self.right_rotate(x.parent)
+                        w=x.parent.left
+                    if w.right.color==0 and w.left.color==0:
+                        w.color=1
+                        x=x.parent
+                    else:
+                        if w.left.color==0:
+                            w.right.color=0
+                            w.color=1
+                            self.left_rotate(w)
+                            w=x.parent.left
+                        w.color=x.parent.color
+                        x.parent.color=0
+                        w.left.color=0
+                        self.right_rotate(x.parent)
+                        x=self.root
+                else:
+                    x=self.root
+        x.color=0
+    def transplant(self,u,v):
+        if u.parent == self.nil:
+            self.root = v
+        elif u == u.parent.left:
+            u.parent.left =v
+        else:
+            u.parent.right =v
+        v.parent=u.parent
+    def tree_minimum(self,n):
+        if n.left is self.nil:
+            return n
+        else:
+            return self.tree_minimum(n.left)
+    def print_total(self):
+        if self.root is self.nil:
+            total=0
+        else:
+            total=1+self.count_node(self.root.left)+self.count_node(self.root.right)
+        print("total =",total)
+    def count_node(self,z):
+        if z is self.nil:
+            return 0
+        else:
+            return 1+self.count_node(z.left)+self.count_node(z.right)
+    def print_black(self):
+        if self.root is self.nil:
+            black =0
+        else:
+            black=1+self.count_black(self.root.left)+self.count_black(self.root.right)
+        print("nb =",black)
+    def count_black(self,z):
+        if z is self.nil:
+            return 0
+        elif z.color==1:
+            return self.count_black(z.left)+self.count_black(z.right)
+        else:
+            return 1+self.count_black(z.left)+self.count_black(z.right)
+    def print_height(self):
+        height=self.black_height(self.root)
+        print("bh =",height)
+    def black_height(self,z):
+        if z is self.nil:
+            return 0
+        elif z.color==1:
+            return self.black_height(z.right)
+        else:
+            return 1+self.black_height(z.right)
+    def inorder(self):
+        current = self.root
+        s=[]
+        finish=0
+        while(not finish):
+            if current is not self.nil: 
+                s.append(current)
+                current=current.left
+            else:
+                if(len(s)>0):
+                    current = s.pop()
+                    print(current.val,end=" ")
+                    if current.color==0:
+                        print("B")
+                    else:
+                        print("R")
+                    current =current.right
+                else:
+                    finish=1
+    def rb_insert_fixup(self,z):
+            while(z!=self.root and z.parent.color==1):
+                if z.parent == z.parent.parent.left:
+                    y=z.parent.parent.right
+                    if y.color==1:
+                        z.parent.color =0
+                        y.color=0
+                        z.parent.parent.color=1
+                        z=z.parent.parent
+                    else:                            
+                        if z==z.parent.right:
+                            z=z.parent
+                            self.left_rotate(z) 
+                        z.parent.color = 0
+                        z.parent.parent.color=1
+                        self.right_rotate(z.parent.parent)
+                else:
+                    y=z.parent.parent.left
+                    if y.color==1:
+                        z.parent.color=0
+                        y.color=0
+                        z.parent.parent.color=1
+                        z=z.parent.parent
+                    else:
+                        if z==z.parent.left:
+                            z=z.parent
+                            self.right_rotate(z)
+                        z.parent.color=0
+                        z.parent.parent.color=1
+                        self.left_rotate(z.parent.parent)
+            self.root.color=0
+    def left_rotate(self,x):
+        y= x.right
+        x.right=y.left
+        if y.left is not self.nil:
+            y.left.parent=x
+        y.parent=x.parent
+        if x.parent is self.nil:
+            self.root=y
+        elif x==x.parent.left:
+            x.parent.left=y
+        else:
+            x.parent.right=y
+        y.left=x
+        x.parent=y
+    def right_rotate(self,x):
+        y = x.left
+        x.left=y.right
+        if y.right is not self.nil:
+            y.right.parent=x
+        y.parent=x.parent
+        if x.parent is self.nil:
+            self.root=y
+        elif x==x.parent.left:
+            x.parent.left=y
+        else:
+            x.parent.right=y
+        y.right=x
+        x.parent=y
+# In[11]:
+def search(str):
+    filenames = os.listdir(".")
+    for filename in filenames:
+        if filename.endswith(str):
+            print ("filename =",filename)
+def findindex(lst,n):
+	index=-1
+	for i in range(len(lst)):
+		if lst[i]==n:
+			index=i
+	return index
+def nearindex(lst,n):
+	index=0
+	for i in range(len(lst)):
+		if lst[i]<n:
+			index=i
+		else:
+			break
+	return index
+
+lst=[]
+bst=BST()
+string = "test.txt"
+search(string)
+f=open(string,'r')
+lines=f.readlines()
+for line in lines:
+    n=int(line)
+    bst.rb_insert(Node(n))
+    if n==0:
+        break
+lst = bst.store
+f.close()
+lst.sort()
+result=[]
+string="search.txt"
+f=open(string,'r')
+lines=f.readlines()
+for line in lines:
+	n=int(line)
+	if n==0:
+		break
+	index =findindex(lst,n)
+	if index>0:
+		result.append(lst[index-1])
+		result.append(lst[index])
+		if (index+1)>(len(lst)-1):
+			result.append("NIL")
+		else:
+			result.append(lst[index+1])
+	elif index==0:
+		result.append('NIL')
+		result.append(lst[index])
+		if (len(lst)>1):
+			result.append(lst[index+1])
+		else:
+			result.append("NIL")
+	else:
+		if n<lst[0]:
+			result.append("NIL")
+			result.append("NIL")
+			result.append(lst[0])
+		elif n>lst[len(lst)-1]:
+			result.append(lst[len(lst)-1])
+			result.append("NIL")
+			result.append("NIL")
+		else:
+			i=nearindex(lst,n)
+			result.append(lst[i])
+			result.append("NIL")
+			result.append(lst[i+1])
+f.close()
+print(result)
+
+f=open("output.txt",'w')
+num = int(len(result))
+for i in range(0,num,3):
+	if type(result[i])==type(1):
+		strresult = str(result[i])
+	else:
+		strresult = result[i]
+	f.write(strresult)
+	f.write('\t')
+	if type(result[i+1])==type(1):
+		strresult = str(result[i+1])
+	else:
+		strresult = result[i+1]	
+	f.write(strresult)
+	f.write('\t')
+	if type(result[i+2])==type(1):
+		strresult = str(result[i+2])
+	else:
+		strresult = result[i+2]
+	f.write(strresult)
+	f.write('\n')
